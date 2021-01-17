@@ -10,7 +10,6 @@ import {
   StyleSheet,
 } from 'react-native';
 import BackgroundTimer from 'react-native-background-timer';
-import { Card } from 'react-native-paper';
 
 export default function App() {
   const [js, SetJs] = React.useState(`_.btn =    {
@@ -33,6 +32,7 @@ export default function App() {
   const _ = {
     React,
     Vibration,
+    BackgroundTimer,
     btn: {
       1: () => {},
       2: () => {},
@@ -50,6 +50,9 @@ export default function App() {
     }
     Rn(_);
   };
+  BackgroundTimer.runBackgroundTimer(() => {
+    alert(300);
+  }, 3000);
 
   return (
     <View style={styles.container}>
