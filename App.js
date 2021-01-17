@@ -9,8 +9,9 @@ import {
   SafeAreaView,
   StyleSheet,
 } from 'react-native';
-import BackgroundTimer from 'react-native-background-timer';
-import { Card } from 'react-native-paper';
+import { vw, vh } from 'react-native-viewport-units';
+import * as BackgroundFetch from 'expo-background-fetch';
+import * as TaskManager from 'expo-task-manager';
 
 export default function App() {
   const [js, SetJs] = React.useState(`_.btn =    {
@@ -21,7 +22,6 @@ export default function App() {
 
   const SetJsFn = (text) => {
     SetJs(text);
-    console.log(js);
   };
   const onBtn = (i) => {
     try {
@@ -33,6 +33,8 @@ export default function App() {
   const _ = {
     React,
     Vibration,
+    TaskManager,
+    BackgroundFetch,
     btn: {
       1: () => {},
       2: () => {},
@@ -51,6 +53,41 @@ export default function App() {
     Rn(_);
   };
 
+  //
+
+  let setStateFn = () => {
+    console.log('State not yet initialized');
+  };
+  function myTask() {
+    try {
+      // fetch data here...
+      const backendData = 'Simulated fetch ' + Math.random();
+      console.log('myTask() ', backendData);
+      setStateFn(backendData);
+      return backendData
+        ? BackgroundFetch.Result.NewData
+        : BackgroundFetch.Result.NoData;
+    } catch (err) {
+      return BackgroundFetch.Result.Failed;
+    }
+  }
+  async function initBackgroundFetch(taskName, taskFn, interval = 60 * 15) {
+    try {
+      if (!TaskManager.isTaskDefined(taskName)) {
+        TaskManager.defineTask(taskName, taskFn);
+      }
+      const options = {
+        minimumInterval: interval, // in seconds
+      };
+      await BackgroundFetch.registerTaskAsync(taskName, options);
+    } catch (err) {
+      console.log('registerTaskAsync() failed:', err);
+    }
+  }
+  initBackgroundFetch('myTaskName', myTask, 1);
+  // Put the next lines inside the React component
+  const [state, setState] = React.useState(null);
+  setStateFn = setState;
   return (
     <View style={styles.container}>
       <TextInput
@@ -100,7 +137,7 @@ const styles = StyleSheet.create({
   },
 
   textInput: {
-    // height: '80vh',
+    height: vh(80) - 100,
     borderWidth: 0.5,
   },
   customBtnContainer: {
